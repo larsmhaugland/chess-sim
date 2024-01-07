@@ -45,7 +45,6 @@ const std::string gridFragmentShader = R"(
 
     uniform vec3 u_color1 = vec3(0.0); // (usually) black tiles
     uniform vec3 u_color2 = vec3(1.0); // (usually) white tiles
-    uniform vec2 u_divisions;
     uniform int u_texture;
     uniform uint u_highlightedLow;
     uniform uint u_highlightedHigh;
@@ -70,27 +69,11 @@ const std::string gridFragmentShader = R"(
 
     void main()
     {
-        // Checkerboard pattern based on divisions
-        /*
-        if (sin(M_PI * u_divisions.y * vs_tcoords.z) > 0) {
-            if (sin(M_PI * u_divisions.x * vs_tcoords.x) > 0) {
-                fragColor = vec4(u_color1, 1.0);
-            } else {
-                fragColor = vec4(u_color2, 1.0);
-            }
-        } else {
-            if (sin(M_PI * u_divisions.y * vs_tcoords.x) > 0) {
-                fragColor = vec4(u_color2, 1.0);
-            } else {
-                fragColor = vec4(u_color1, 1.0);
-            }
-        }
-        */
-
+           // Get the tile coordinates
         int tileX = int(mod(positions.x * 8.0, 8.0));
         int tileY = int(mod(positions.y * 8.0, 8.0));
 
-        /*
+
         // Use alternating colors for even and odd tiles
         vec3 color;
         if ((tileX + tileY) % 2 == 0) {
@@ -100,8 +83,8 @@ const std::string gridFragmentShader = R"(
             // Odd tile
             fragColor = vec4(1.0, 1.0, 1.0, 1.0); // White
         }
-        */
 
+/*
         vec3 color;
 
         // Odd tile
@@ -117,7 +100,7 @@ const std::string gridFragmentShader = R"(
         } else if (isBitSet(u_highlightedLow, bitIndex)){
             fragColor = vec4(0.0, 1.0, 1.0, 1.0);
         }
-
+*/
         /*if(tileX > 0){
             fragColor = vec4(1.0, 0.0, 1.0, 1.0);
         }*/

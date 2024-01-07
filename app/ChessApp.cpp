@@ -253,9 +253,6 @@ unsigned int ChessApp::Run() const{
     gridShader = new Shader(gridVertexShader, gridFragmentShader);
     cubeShader = new Shader(cubeVertexShader, cubeFragmentShader);
     gridShader->use();
-    //Set number of divisions in grid
-    glm::vec2 gridSize = { X,Y };
-    gridShader->setUniform2f("u_divisions", gridSize);
 
     //Set background color
     glm::vec4 bColor = glm::vec4(0.2f,0.2f,0.2f,1.0f);
@@ -360,8 +357,8 @@ unsigned int ChessApp::Run() const{
         gridShader->setUniform3f("u_cameraPosition", camera->GetPosition());
         gridShader->setUniform3f("u_normals", glm::vec3(0, 1, 0));
         gridShader->setUniform3f("u_lightColor", lightColor);
-        gridShader->setUInt("u_highlightedHigh", highlightedTilesHigh);
-        gridShader->setUInt("u_highlightedLow", highlightedTilesLow);
+        //gridShader->setUInt("u_highlightedHigh", highlightedTilesHigh);
+        //gridShader->setUInt("u_highlightedLow", highlightedTilesLow);
         // Draw the grid
         gridVA->Bind();
         RenderCommands::DrawIndex(gridVA, GL_TRIANGLES);
@@ -418,9 +415,6 @@ unsigned int ChessApp::Run() const{
             scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(scaleFactor));
             // Combine the translation, rotation and scale
             model = translationMatrix * rotationMatrix * scaleMatrix;
-            if(piece->getPos() == 0){
-                cubeShader->setUniform4f("u_cubeColor", glm::vec4(0.6,0.1,1.0,1));
-            }
 
             // Send model matrix to cube shader
             cubeShader->setMat4("u_model", model);
