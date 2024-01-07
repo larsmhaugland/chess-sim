@@ -24,6 +24,8 @@ jobs:
         run: |
             sudo apt-get install -y libgl1-mesa-dev
             sudo apt-get install -y libxrandr-dev
+            sudo apt-get install -y libxinerama-dev
+
 
 
       - name: Build
