@@ -24,20 +24,20 @@ public:
     // use/activate the shader
         void use();
     // utility uniform functions
-        int retID(){return ID;}
+        int retID() const {return ID;}
         void setBool(const std::string& name, bool value) const;
         void setInt(const std::string& name, int value) const;
+        void setUInt(const std::string& name, unsigned int value) const;
         void setFloat(const std::string& name, float value) const;
         void setMat4(const std::string& name, const glm::mat4& mat)const;
-        void setUniform4f(const std::string& name, glm::vec4 v);
-        void setUniform3f(const std::string& name, glm::vec3 v);
-        void setUniform2f(const std::string& name, glm::vec2 v);
-
-    void setDouble(const char *string, double d);
+        void setUniform4f(const std::string& name, glm::vec4 v) const;
+        void setUniform3f(const std::string& name, glm::vec3 v) const;
+        void setUniform2f(const std::string& name, glm::vec2 v) const;
+        void setDouble(const char *string, double d) const;
 
 private:
-    int GetUniformLocation(const std::string& name);
-    GLuint compileShader(const std::string vertexShader, const std::string& fragmentShader);
+    int GetUniformLocation(const std::string& name) const;
+    static GLuint compileShader(const std::string& vertexShader, const std::string& fragmentShader);
 };
 
 #endif

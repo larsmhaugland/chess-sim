@@ -47,7 +47,8 @@ const std::string gridFragmentShader = R"(
     uniform vec3 u_color2 = vec3(1.0); // (usually) white tiles
     uniform vec2 u_divisions;
     uniform int u_texture;
-    uniform double u_highlighted;
+    uniform uint u_highlightedLow;
+    uniform uint u_highlightedHigh;
 
     //Lighting
     uniform float u_ambientStrength;
@@ -59,20 +60,18 @@ const std::string gridFragmentShader = R"(
 
     layout(binding=1) uniform sampler2D u_lightTextureSampler;
 
-    bool isBitSet(double value, int bitIndex) {
-        // Convert the double to an integer using bitwise casting
-        int intValue = int(value);
-
+    bool isBitSet(uint value, int bitIndex) {
         // Create a bitmask with the specified bitIndex set
-        int bitmask = 1 << bitIndex;
+        uint bitmask = 1u << bitIndex;
 
         // Use bitwise AND to check if the specified bit is set
-        return (intValue & bitmask) != 0;
+        return (value & bitmask) != 0;
     }
 
     void main()
     {
         // Checkerboard pattern based on divisions
+        /*
         if (sin(M_PI * u_divisions.y * vs_tcoords.z) > 0) {
             if (sin(M_PI * u_divisions.x * vs_tcoords.x) > 0) {
                 fragColor = vec4(u_color1, 1.0);
@@ -86,15 +85,44 @@ const std::string gridFragmentShader = R"(
                 fragColor = vec4(u_color1, 1.0);
             }
         }
+        */
+
+        int tileX = int(mod(positions.x * 8.0, 8.0));
+        int tileY = int(mod(positions.y * 8.0, 8.0));
+
+        /*
+        // Use alternating colors for even and odd tiles
+        vec3 color;
+        if ((tileX + tileY) % 2 == 0) {
+            // Even tile
+            fragColor = vec4(0.0, 0.0, 0.0, 0.0); // Black
+        } else {
+            // Odd tile
+            fragColor = vec4(1.0, 1.0, 1.0, 1.0); // White
+        }
+        */
+
+        vec3 color;
+
+        // Odd tile
+        // Set a different color based on the tile coordinates
+
+        color = vec3(tileX != 0 ? tileX/8 : 0, tileY != 0 ? tileY/8 : 0, 0.0);
+        fragColor = vec4(color, 1.0);
 
         //Highlighting
-        int bitIndex = int(vs_tcoords.x + vs_tcoords.z * u_divisions.x);
-        if(isBitSet(u_highlighted, bitIndex)){
-            fragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        int bitIndex = tileX + tileY * 8;
+        if(isBitSet(u_highlightedHigh, bitIndex)){
+            fragColor = vec4(1.0, 0.0, 1.0, 1.0);
+        } else if (isBitSet(u_highlightedLow, bitIndex)){
+            fragColor = vec4(0.0, 1.0, 1.0, 1.0);
         }
-        if (vs_tcoords.z == 0) {
-            fragColor = vec4(0.0, 1.0, 0.0, 1.0);
-        }
+
+        /*if(tileX > 0){
+            fragColor = vec4(1.0, 0.0, 1.0, 1.0);
+        }*/
+
+
 
         //Ambient color
         vec3 ambient = u_ambientStrength * u_lightColor;

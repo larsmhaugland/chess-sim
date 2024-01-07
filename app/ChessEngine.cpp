@@ -295,6 +295,7 @@ std::string ChessEngine::getLogFile() {
 }
 
 bool ChessEngine::checkMove(ChessPiece* piece, int pos){
+    //Check if white moves against white or black moves against black
     for(auto p : whitePieces){
         if(p->getPos() == pos){
             if(p->isWhite() == piece->isWhite()){
@@ -309,6 +310,8 @@ bool ChessEngine::checkMove(ChessPiece* piece, int pos){
             }
         }
     }
+
+
     return true;
 }
 

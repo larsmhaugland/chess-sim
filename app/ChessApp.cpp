@@ -4,10 +4,10 @@
 #include <algorithm>
 #include <memory>
 #include <glm/glm.hpp>
-#include <glm/gtc/color_space.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <thread>
+#include <bitset>
 #include "ChessApp.h"
 #include "Shader.h"
 #include "GeometricTools.h"
@@ -121,8 +121,8 @@ void ChessApp::keyCallback(GLFWwindow *window, int key, int scancode, int action
         case GLFW_KEY_W: camera->ZoomCamera(zoomSpeed); break;
         case GLFW_KEY_S: camera->ZoomCamera(-zoomSpeed); break;
         // Move selector:
-        case GLFW_KEY_DOWN:  playerPos.x += (playerPos.x < X-1) ? 1 : 0; break;
-        case GLFW_KEY_UP:    playerPos.x -= (playerPos.x > 0)   ? 1 : 0; break;
+        case GLFW_KEY_UP:    playerPos.x += (playerPos.x < X-1) ? 1 : 0; break;
+        case GLFW_KEY_DOWN:  playerPos.x -= (playerPos.x > 0)   ? 1 : 0; break;
         case GLFW_KEY_RIGHT: playerPos.y += (playerPos.y < Y-1) ? 1 : 0; break;
         case GLFW_KEY_LEFT:  playerPos.y -= (playerPos.y > 0)   ? 1 : 0; break;
         // Toggle texture:
@@ -247,6 +247,7 @@ unsigned int ChessApp::Run() const{
     //Initialize camera
     camera = new PerspectiveCamera();
     camera->SetLookAt(glm::vec3(0.0f));
+    camera->SetPosition(glm::vec3(-1.5f, 1.5f, 0.0f));
 
     //Load shaders
     gridShader = new Shader(gridVertexShader, gridFragmentShader);
@@ -274,6 +275,11 @@ unsigned int ChessApp::Run() const{
     glm::vec3 lightPosition; // Position of the light source
     glm::vec3 lightColor = glm::vec3(1,1,1); // White light
     float lightIntensity; // Intensity of the light source
+
+    //TODO DEBUG ONLY REMOVE LATER
+    unsigned int highOld;
+    unsigned int lowOld;
+
 
     // Set the key callback function
     glfwSetKeyCallback(window, keyCallback);
@@ -319,8 +325,28 @@ unsigned int ChessApp::Run() const{
         // Combine the translation and rotation
         glm::mat4 model = translationMatrix * rotationMatrix * scaleMatrix;
 
-        double highlightedTiles = 0;
-        highlightedTiles = (1LL << 9);
+        unsigned int highlightedTilesHigh = 0;
+        unsigned int highlightedTilesLow = 0;
+
+
+
+        int selectorIndex = playerPos.x + playerPos.y * 8;
+        if(selectorIndex > 31){
+            highlightedTilesHigh = 1 << selectorIndex;
+        } else {
+            highlightedTilesLow = 1 << selectorIndex;
+        }
+
+        if(highOld != highlightedTilesHigh){
+            std::cout << "High: " << std::bitset<32>(highlightedTilesHigh) << std::endl;
+        }
+        if(lowOld != highlightedTilesLow){
+            std::cout << "Low: " << std::bitset<32>(highlightedTilesLow) << std::endl;
+        }
+
+        highOld = highlightedTilesHigh;
+        lowOld = highlightedTilesLow;
+
         //Send uniforms to grid shader
         gridShader->use();
         gridShader->setMat4("u_viewMat", camera->GetViewMatrix());
@@ -334,7 +360,8 @@ unsigned int ChessApp::Run() const{
         gridShader->setUniform3f("u_cameraPosition", camera->GetPosition());
         gridShader->setUniform3f("u_normals", glm::vec3(0, 1, 0));
         gridShader->setUniform3f("u_lightColor", lightColor);
-        gridShader->setDouble("u_highlighted", highlightedTiles);
+        gridShader->setUInt("u_highlightedHigh", highlightedTilesHigh);
+        gridShader->setUInt("u_highlightedLow", highlightedTilesLow);
         // Draw the grid
         gridVA->Bind();
         RenderCommands::DrawIndex(gridVA, GL_TRIANGLES);
@@ -391,6 +418,9 @@ unsigned int ChessApp::Run() const{
             scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(scaleFactor));
             // Combine the translation, rotation and scale
             model = translationMatrix * rotationMatrix * scaleMatrix;
+            if(piece->getPos() == 0){
+                cubeShader->setUniform4f("u_cubeColor", glm::vec4(0.6,0.1,1.0,1));
+            }
 
             // Send model matrix to cube shader
             cubeShader->setMat4("u_model", model);
