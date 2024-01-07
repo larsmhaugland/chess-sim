@@ -1,0 +1,39 @@
+name: CMake Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'  # Initialize and update submodules
+
+      - name: Set up CMake
+        run: |
+          sudo apt-get update 
+          sudo apt-get install -y cmake
+
+      - name: Install Required Packages
+        run: |
+            sudo apt-get install -y libgl1-mesa-dev
+            sudo apt-get install -y libxrandr-dev
+            sudo apt-get install -y libxinerama-dev
+            sudo apt-get install -y libxcursor-dev
+            sudo apt-get install -y libxi-dev
+
+
+
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          make
