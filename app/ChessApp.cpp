@@ -46,7 +46,7 @@ int Y = 8;	                        //Y size of board
 
 // Initialize static members
 PerspectiveCamera* ChessApp::camera = nullptr;
-glm::vec2 ChessApp::playerPos = glm::vec2(1, 1);
+glm::vec2 ChessApp::playerPos = glm::vec2(0, 0);
 bool ChessApp::texture = true;  // if texture should be used or not
 float ChessApp::ambientLight = 0.3;
 float ChessApp::specStrength = 0.5;
@@ -129,7 +129,7 @@ void ChessApp::keyCallback(GLFWwindow *window, int key, int scancode, int action
         case GLFW_KEY_T: texture = !texture; break;
         case GLFW_KEY_H: hiRes = !hiRes; printf("%s\n",hiRes ? "Hi" : "Low"); break;
         // Reset board:
-        case GLFW_KEY_R: break;
+        case GLFW_KEY_R: chessEngine->resetBoard(); playerPos = glm::vec2(0); break;
         // Stop/Resume day night cycle (NB: Does not reset cycle, it continues, only change is if "sun" position updates)
         case GLFW_KEY_SPACE:
             chessEngine->tryMove(playerPos.x * 8 + playerPos.y);
@@ -146,8 +146,6 @@ void ChessApp::keyCallback(GLFWwindow *window, int key, int scancode, int action
 unsigned int ChessApp::Init() {
     width = 1024;
     height = 1024;
-
-
     GLFWApplication::Init();
     return 0;
 }
@@ -334,6 +332,7 @@ unsigned int ChessApp::Run() const{
             highlightedTilesLow = 1 << selectorIndex;
         }
 
+        //Print debug info if something changes
         if(highOld != highlightedTilesHigh){
             std::cout << "High: " << std::bitset<32>(highlightedTilesHigh) << std::endl;
         }

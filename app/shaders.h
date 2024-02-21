@@ -73,7 +73,6 @@ const std::string gridFragmentShader = R"(
         int tileX = int(mod(positions.x * 8.0, 8.0));
         int tileY = int(mod(positions.y * 8.0, 8.0));
 
-
         // Use alternating colors for even and odd tiles
         vec3 color;
         if ((tileX + tileY) % 2 == 0) {
@@ -84,28 +83,11 @@ const std::string gridFragmentShader = R"(
             fragColor = vec4(1.0, 1.0, 1.0, 1.0); // White
         }
 
-/*
-        vec3 color;
-
-        // Odd tile
-        // Set a different color based on the tile coordinates
-
-        color = vec3(tileX != 0 ? tileX/8 : 0, tileY != 0 ? tileY/8 : 0, 0.0);
-        fragColor = vec4(color, 1.0);
-
-        //Highlighting
-        int bitIndex = tileX + tileY * 8;
-        if(isBitSet(u_highlightedHigh, bitIndex)){
-            fragColor = vec4(1.0, 0.0, 1.0, 1.0);
-        } else if (isBitSet(u_highlightedLow, bitIndex)){
-            fragColor = vec4(0.0, 1.0, 1.0, 1.0);
+        // Highlight the tile if it is selected
+        uint tileIndex = uint(tileX * 8 + tileY);
+        if (isBitSet(u_highlightedLow, int(tileIndex)) || isBitSet(u_highlightedHigh, int(tileIndex))) {
+            fragColor = vec4(1.0, 0.0, 0.0, 1.0); // Red
         }
-*/
-        /*if(tileX > 0){
-            fragColor = vec4(1.0, 0.0, 1.0, 1.0);
-        }*/
-
-
 
         //Ambient color
         vec3 ambient = u_ambientStrength * u_lightColor;
